@@ -1,0 +1,103 @@
+﻿@* @model IEnumerable<mvc2025TermProject.Models.ViewModels.RecipeViewModel>
+
+@{
+    ViewData["Title"] = "Old All Recipes";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RecipeName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RecipeIngredientDetails)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Instruction)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PreparationTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CookingTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumberOfServings)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
+                Manage
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RecipeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedBy.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RecipeIngredientDetails)
+                    @if (item.RecipeIngredientDetails != null)
+                    {
+                        <ul>
+                            @foreach (var ingredient in item.RecipeIngredientDetails)
+                            {
+                                <li>
+                                    @(ingredient.Ingredient?.ApprovedIngredientName + ", " 
+                                    ?? ingredient.Ingredient?.PendingIngredientName + ", ");
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span>No ingredients</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Instruction)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FormattedPrepTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FormattedCookTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumberOfServings)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category.PendingCategoryName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.RecipeID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.RecipeID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.RecipeID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+ *@

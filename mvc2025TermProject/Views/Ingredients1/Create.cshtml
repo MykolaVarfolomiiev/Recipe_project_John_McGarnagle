@@ -1,0 +1,62 @@
+﻿@model mvc2025TermProject.Models.Ingredient
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Ingredient</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ApprovedIngredientName" class="control-label"></label>
+                <input asp-for="ApprovedIngredientName" class="form-control" />
+                <span asp-validation-for="ApprovedIngredientName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ApprovedIngredientType" class="control-label"></label>
+                <input asp-for="ApprovedIngredientType" class="form-control" />
+                <span asp-validation-for="ApprovedIngredientType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ApprovedIngredientDetails" class="control-label"></label>
+                <input asp-for="ApprovedIngredientDetails" class="form-control" />
+                <span asp-validation-for="ApprovedIngredientDetails" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PendingIngredientName" class="control-label"></label>
+                <input asp-for="PendingIngredientName" class="form-control" />
+                <span asp-validation-for="PendingIngredientName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PendingIngredientType" class="control-label"></label>
+                <input asp-for="PendingIngredientType" class="form-control" />
+                <span asp-validation-for="PendingIngredientType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PendingIngredientDetails" class="control-label"></label>
+                <input asp-for="PendingIngredientDetails" class="form-control" />
+                <span asp-validation-for="PendingIngredientDetails" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedById" class="control-label"></label>
+                <select asp-for="CreatedById" class ="form-control" asp-items="ViewBag.CreatedById"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

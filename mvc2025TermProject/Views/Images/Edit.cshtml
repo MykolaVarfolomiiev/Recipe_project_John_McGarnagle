@@ -1,0 +1,66 @@
+﻿@model mvc2025TermProject.Models.Image
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Image</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ImageID" />
+            <div class="form-group">
+                <label asp-for="RecipeID" class="control-label"></label>
+                <select asp-for="RecipeID" class="form-control" asp-items="ViewBag.RecipeID"></select>
+                <span asp-validation-for="RecipeID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FilePath" class="control-label"></label>
+                <input asp-for="FilePath" class="form-control" />
+                <span asp-validation-for="FilePath" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FileName" class="control-label"></label>
+                <input asp-for="FileName" class="form-control" />
+                <span asp-validation-for="FileName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AltText" class="control-label"></label>
+                <input asp-for="AltText" class="form-control" />
+                <span asp-validation-for="AltText" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsPrimary" class="control-label"></label>
+                <input asp-for="IsPrimary" class="form-control" />
+                <span asp-validation-for="IsPrimary" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsApproved" class="control-label"></label>
+                <input asp-for="IsApproved" class="form-control" />
+                <span asp-validation-for="IsApproved" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAt" class="control-label"></label>
+                <input asp-for="CreatedAt" class="form-control" />
+                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

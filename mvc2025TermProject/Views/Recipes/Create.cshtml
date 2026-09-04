@@ -1,0 +1,83 @@
+﻿@model mvc2025TermProject.Models.ViewModels.RecipeCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Recipe";
+}
+
+@await Html.PartialAsync("_CreateEditPartial", Model)
+
+@* <h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="RecipeName" class="control-label"></label>
+                <input asp-for="RecipeName" class="form-control" />
+                <span asp-validation-for="RecipeName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerID" class="control-label"></label>
+                <select asp-for="OwnerID" class ="form-control" asp-items="ViewBag.OwnerID">
+                    <option value="">--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+
+                @* For this moment you can change status of the recipe here*@
+                @* <select asp-for="Status" class="form-control" asp-items="ViewBag.Status"> *@
+                    @* <option value="">-- None --</option> *@
+@*                 </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Instruction" class="control-label"></label>
+                <input asp-for="Instruction" class="form-control" />
+                <span asp-validation-for="Instruction" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PreparationTime" class="control-label"></label>
+                <input asp-for="PreparationTime" class="form-control" />
+                <span asp-validation-for="PreparationTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CookingTime" class="control-label"></label>
+                <input asp-for="CookingTime" class="form-control" />
+                <span asp-validation-for="CookingTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfServings" class="control-label"></label>
+                <input asp-for="NumberOfServings" class="form-control" />
+                <span asp-validation-for="NumberOfServings" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryID" class="control-label"></label>
+                <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
+                    <option disabled selected>Select Category</option>
+                    <option value="">-- None --</option>
+                </select>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="Images" class="control-label">Images</label>
+                
+                    @* Images placeholder*@
+@*                     <a class="d-flex align-items-center">
+                        <img src="~/img/image-not-avaliable01.jpg" alt="img not avaliable" height="600" width = "600" class="me-2" />
+                    </a>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div> *@
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

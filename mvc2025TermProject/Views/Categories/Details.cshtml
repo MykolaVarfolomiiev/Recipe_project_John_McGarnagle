@@ -1,0 +1,30 @@
+﻿@model mvc2025TermProject.Models.Category
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Category</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PendingCategoryName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PendingCategoryName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PendingCategoryDescription)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PendingCategoryDescription)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.PendingCategoryName">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

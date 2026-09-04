@@ -1,0 +1,142 @@
+﻿@model PaginatedList<mvc2025TermProject.Models.ViewModels.RecipeViewModel>
+
+@{
+    ViewData["Title"] = "Recipes";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Index" method="get" class="mt-3">
+    <div class="form-actions no-color">
+        <h4>Search</h4>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label>Date:</label>
+                <input type="date" name="dateSearch"
+                       value="@(ViewData["DateSearch"] ?? "")"
+                       class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label>Category:</label>
+                <select name="categorySearch" class="form-select" asp-items="ViewBag.CategoryID">
+                    <option value="">Select Category</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label>Keyword:</label>
+                <input type="text" name="keywordSearch" value="@(ViewData["KeywordSearch"] ?? "")" class="form-control" />
+            </div>
+
+            <div class="col-12 mt-2 d-flex justify-content-between">
+                <div>
+                    <input type="submit" value="Search" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Back to Full List</a>
+                </div>
+
+                <div>
+                    <a asp-action="StepOne" class="btn btn-success">Create New</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+<div class="list-group mt-4">
+    @foreach (var item in Model)
+    {
+        <div class="list-group-item list-group-item-action d-flex align-items-center shadow-sm mb-2 div-color">
+
+            <!-- Image -->
+            <td>
+                @if (item.Images != null && item.Images.Any(i => i.IsApproved == true))
+                {
+                    @foreach (var img in item.Images.Where(i => i.IsApproved == true))
+                    {
+                        @if (img.IsPrimary == true)
+                        {
+                            <img src="@img.FilePath"
+                                 alt="@img.AltText"
+                                 class="recipeImg img-fluid rounded shadow"
+                                 style="width: 100px; height: 100px; object-fit: cover;" />
+                        }
+                    }
+                }
+            </td>
+
+            <!-- Info & Actions -->
+            <div class="flex-grow-1 d-flex justify-content-between align-items-center ms-3">
+
+                <!-- Recipe Info -->
+                <div>
+                    <h5 class="mb-1">@item.RecipeName</h5>
+                    <p class="mb-1">
+                        <strong>Category:</strong> @(item.Category.ApprovedCategoryName ?? item.Category.PendingCategoryName + " (pending)")
+                    </p>
+                    <p class="mb-0"><strong>Created:</strong> @(item.Created?.ToShortDateString() ?? "—")</p>
+                </div>
+
+                <!-- Buttons -->
+                <div class="text-end">
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        <a asp-action="Details" asp-route-id="@item.RecipeID" class="btn btn-secondary btn-sm me-1">Details</a>
+                    }
+                    else
+                    {
+                        <a asp-action="Details" asp-route-id="@item.RecipeID" class="btn btn-secondary btn-sm">Details</a>
+                    }
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
+
+<div class="mt-4">
+    <nav aria-label="Recipe pagination">
+        <ul class="pagination justify-content-center">
+
+            <!-- Previous button -->
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex - 1)"
+                   asp-route-dateSearch="@ViewData["DateSearch"]"
+                   asp-route-categorySearch="@ViewData["CategorySearch"]"
+                   asp-route-keywordSearch="@ViewData["KeywordSearch"]"
+                   tabindex="-1">Previous</a>
+            </li>
+
+            <!-- Current page indicator -->
+            <li class="page-item active">
+                <span class="page-link">
+                    Page @Model.PageIndex of @Model.TotalPages
+                </span>
+            </li>
+
+            <!-- Next button -->
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex + 1)"
+                   asp-route-dateSearch="@ViewData["DateSearch"]"
+                   asp-route-categorySearch="@ViewData["CategorySearch"]"
+                   asp-route-keywordSearch="@ViewData["KeywordSearch"]">Next</a>
+            </li>
+
+        </ul>
+    </nav>
+</div>

@@ -1,0 +1,218 @@
+﻿@model mvc2025TermProject.Models.Recipe
+
+@{
+    ViewData["Title"] = "Recipe Details";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="recipe-print mt-5">
+
+    <h1 class="recipeName">@Model.RecipeName</h1>
+
+    <div class="level-1">
+        <h3>Images</h3>
+        @if (Model.Images != null && Model.Images.Any(img => img.IsApproved == true))
+        {
+            <div class="row">
+                <!-- LEFT COLUMN: Primary Image -->
+                <div class="col-md-6">
+                    @foreach (var img in Model.Images.Where(i => i.IsApproved == true && i.IsPrimary == true))
+                    {
+                        <div class="primary-image-wrapper mb-3">
+                            <img src="@img.FilePath" alt="@img.AltText" class="img-fluid primary-img" />
+                        </div>
+                    }
+                </div>
+
+                <!-- RIGHT COLUMN: Other Images -->
+                <div class="col-md-6">
+                    <div class="other-images-wrapper d-flex flex-wrap gap-3">
+                        @foreach (var img in Model.Images.Where(i => i.IsApproved == true && i.IsPrimary != true))
+                        {
+                            <div class="other-image-box">
+                                <img src="@img.FilePath" alt="@img.AltText" class="img-fluid other-img" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-6 primary-image-wrapper mb-3">
+                    <div class="primary-image-wrapper mb-3">
+                            <img src="~/img/image-not-avaliable01.jpg"
+                                    alt="Image not available"
+                                    class="img-fluid primary-img"/>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="level-1">
+        <h3>Ingredients</h3>
+        @if (Model.RecipeIngredientDetails != null && Model.RecipeIngredientDetails.Any())
+        {
+            <ul class="level-2">
+                @foreach (var ing in Model.RecipeIngredientDetails)
+                {
+                    <li>
+                        @(ing.Ingredient?.ApprovedIngredientName ?? ing.Ingredient?.PendingIngredientName) - @ing.IngredientAmount @ing.MeasurementType
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="level-2">No ingredients listed</p>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Instruction))
+    {
+        <div class="level-1">
+            <h3>Instructions</h3>
+            <ul class="level-2 no-bullets">
+                @foreach (var step in (Model.Instruction ?? "").Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    <li>@step.Trim()</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.Tips))
+    {
+        <div class="level-1">
+            <h3>Tips / Equipment</h3>
+            <p class="level-2">@Model.Tips</p>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.SpecialEquipment))
+    {
+        <div class="level-1">
+            <h3>Special Equipment</h3>
+            <p class="level-2">@Model.SpecialEquipment</p>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.YoutubeLinks))
+    {
+        <div class="level-1">
+            <h3>Related YouTube Links</h3>
+            <ul class="level-2">
+                @foreach (var link in Model.YoutubeLinks.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var cleaned = link.Trim();
+                    <li><a href="@cleaned" target="_blank">@cleaned</a></li>
+                }
+            </ul>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.NutritionalInfo))
+    {
+        <div class="level-1">
+            <h3>Nutritional Information</h3>
+            <p class="level-2">@Model.NutritionalInfo</p>
+        </div>
+    }
+    
+    <div class="level-1">
+        <h3>Details</h3>
+
+        @if (Model.PreparationTime.HasValue)
+        {
+            <p class="level-2">
+                <strong>Prep Time:</strong>
+                <span class="prep-time" data-minutes="@Model.PreparationTime.Value">
+                    @Model.PreparationTime.Value min
+                </span>
+            </p>
+        }
+
+        @if (Model.CookingTime.HasValue)
+        {
+            <p class="level-2">
+                <strong>Cook Time:</strong>
+                <span class="cook-time" data-minutes="@Model.CookingTime.Value">
+                    @Model.CookingTime.Value min
+                </span>
+            </p>
+        }
+
+        @if (Model.CookingTemperature.HasValue)
+        {
+            <p class="level-2">
+                <strong>Temperature:</strong>
+                <span class="temp" data-f="@Model.CookingTemperature.Value" data-c="@((int)Math.Round((Model.CookingTemperature.Value - 32) * 5.0 / 9.0))">
+                    @Model.CookingTemperature.Value°F
+                </span>
+            </p>
+        }
+
+        <p class="level-2">
+            <strong>Category:</strong> @(Model.Category?.ApprovedCategoryName ?? Model.Category?.PendingCategoryName)
+        </p>
+
+        @if (Model.NumberOfServings.HasValue)
+        {
+            <p class="level-2"><strong>Servings:</strong> @Model.NumberOfServings</p>
+        }
+
+        <p class="level-2"><strong>Created On:</strong> @(Model.Created?.ToShortDateString())</p>
+    </div>
+    <div class="view-options mb-3">
+        <strong>View Options:</strong>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleTemp()">Toggle °F/°C</button>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleTime()">Toggle Time Format</button>
+    </div>
+</div>
+
+<div class="actions">
+    <a asp-action="Share" asp-route-id="@Model.RecipeID" class="btn btn-secondary">Share</a>
+    <a asp-action="Report" asp-route-id="@Model.RecipeID" class="btn btn-secondary">Report</a>
+    <a href="javascript:void(0);" onclick="window.print();" class="btn btn-secondary">Print</a>
+    <br /><br />
+    <a asp-action="Index" class="btn btn-outline-dark">Back to List</a>
+</div>
+
+@section Scripts {
+    <script>
+        let isCelsius = false;
+        let isHoursMinutes = false;
+
+        function toggleTemp() {
+            isCelsius = !isCelsius;
+            document.querySelectorAll('.temp').forEach(span => {
+                span.textContent = isCelsius ? span.dataset.c + '°C' : span.dataset.f + '°F';
+            });
+        }
+
+        function toggleTime() {
+            isHoursMinutes = !isHoursMinutes;
+            document.querySelectorAll('.prep-time, .cook-time').forEach(span => {
+                let minutes = parseInt(span.dataset.minutes);
+                if (isHoursMinutes) {
+                    let hrs = Math.floor(minutes / 60);
+                    let mins = minutes % 60;
+                    span.textContent = hrs > 0 && mins > 0 ? `${hrs} hr ${mins} min`
+                                      : hrs > 0 ? `${hrs} hr`
+                                      : `${mins} min`;
+                } else {
+                    span.textContent = `${minutes} min`;
+                }
+            });
+        }
+    </script>
+}

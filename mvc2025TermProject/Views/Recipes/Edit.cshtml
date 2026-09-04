@@ -1,0 +1,236 @@
+﻿@model mvc2025TermProject.Models.Recipe
+
+@{
+    ViewData["Title"] = "Edit Recipe";
+}
+
+@* @Html.Partial("_CreateEditPartial") *@
+
+<h1 class="text-center pt-5">@ViewData["Title"]</h1>
+
+@* <h1>@ViewData["Title"]</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="RecipeID" />
+            <div class="form-group">
+                <label asp-for="RecipeName" class="control-label"></label>
+                <input asp-for="RecipeName" class="form-control" />
+                <span asp-validation-for="RecipeName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerID" class="control-label"></label>
+                <select asp-for="OwnerID" class="form-control" asp-items="ViewBag.OwnerID"></select>
+                <span asp-validation-for="OwnerID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                @* For this moment you can change status of the recipe here*@
+                @* <select asp-for="Status" class="form-control" asp-items="ViewBag.Status"> *@
+                    @* <option value="">-- None --</option> *@
+@*                 </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Instruction" class="control-label"></label>
+                <input asp-for="Instruction" class="form-control" />
+                <span asp-validation-for="Instruction" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PreparationTime" class="control-label"></label>
+                <input asp-for="PreparationTime" class="form-control" />
+                <span asp-validation-for="PreparationTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CookingTime" class="control-label"></label>
+                <input asp-for="CookingTime" class="form-control" />
+                <span asp-validation-for="CookingTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfServings" class="control-label"></label>
+                <input asp-for="NumberOfServings" class="form-control" />
+                <span asp-validation-for="NumberOfServings" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryID" class="control-label"></label>
+                <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
+                    <option disabled selected>Select Category</option>
+                    <option value="">-- None --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>  *@
+
+<div class="row mx-2">
+
+    @* Current Date *@
+    <div class="d-flex justify-content-end">
+        <div class="div-grey p-2">
+            @DateTime.Now.ToString("MMM dd, yyyy")
+        </div>
+    </div>
+
+    <div class="">
+        <form asp-action="Create">
+
+            @* Category *@
+            <div class="form-group col-md-4 my-2">
+                <label asp-for="CategoryID" class="control-label"></label>
+                <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
+                    <option disabled selected>Select Category</option>
+                    <option value="">-- None --</option>
+                </select>
+            </div>
+
+            @* Recipe Name*@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group col-md-4 my-2">
+                <label asp-for="RecipeName" class="control-label"></label>
+                <input asp-for="RecipeName" class="form-control" />
+                <span asp-validation-for="RecipeName" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between gap-5 my-2">
+                @* Owner *@
+                <div class="form-group  justify-content-start col-md-3">
+                    <label asp-for="CreatedBy" class="control-label"></label>
+                    <select asp-for="CreatedBy" class="form-control" asp-items="ViewBag.CreatedBy">
+                        <option value="">--</option>
+                    </select>
+                </div>
+
+                @*Status *@
+                <div class="form-group justify-content-end col-md-1">
+                    <label asp-for="Status" class="control-label"></label>
+                    <select asp-for="Status" class="form-control" asp-items="ViewBag.Status">
+                        @* <option value="">-- None --</option> *@
+                    </select>
+                </div>
+            </div>
+
+            @* Instructions *@
+            <div class="form-group col-md-12">
+                <label asp-for="Instruction" class="control-label"></label>
+                <textarea asp-for="Instruction" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Instruction" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between gap-5 my-2">
+                @* Prer.Time *@
+                <div class="form-group flex-fill">
+                    <label asp-for="PreparationTime" class="control-label"></label>
+                    <input asp-for="PreparationTime" class="form-control" />
+                    <span asp-validation-for="PreparationTime" class="text-danger"></span>
+                </div>
+
+                @* Cook.Time *@
+                <div class="form-group flex-fill">
+                    <label asp-for="CookingTime" class="control-label"></label>
+                    <input asp-for="CookingTime" class="form-control" />
+                    <span asp-validation-for="CookingTime" class="text-danger"></span>
+                </div>
+
+                @* Servings *@
+                <div class="form-group flex-fill">
+                    <label asp-for="NumberOfServings" class="control-label"></label>
+                    <input asp-for="NumberOfServings" class="form-control" />
+                    <span asp-validation-for="NumberOfServings" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            @* <div class="form-group mb-2">
+                <label asp-for="Images" class="control-label">Images</label>
+            </div> *@
+
+            @* Images placeholder*@
+            <div class="row div-grey mt-5">
+                @* Main image *@
+                <div class="d-flex justify-content-center my-3">
+                    <img src="~/img/image-not-avaliable01.jpg" alt="img not avaliable"
+                         style="
+                         min-width: 200px;
+                         min-height: 200px;
+                         max-width: 600px;
+                         max-height: 600px;
+                         width: 100%;
+                         height: auto;"
+                         class="img-fluid main-image rounded shadow" />
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-between gap-2 my-2">
+                    <div>
+                        <img src="~/img/image-not-avaliable01.jpg" alt="img not avaliable"
+                             style="
+                         max-width: 200px;
+                         max-height: 200px;
+                         height: auto;
+                         height: auto;"
+                             class="img-fluid small-image rounded shadow" />
+                    </div>
+                    <div>
+                        <img src="~/img/image-not-avaliable01.jpg" alt="img not avaliable"
+                             style="
+                         max-width: 200px;
+                         max-height: 200px;
+                         height: auto;
+                         height: auto;"
+                             class="img-fluid small-image rounded shadow" />
+                    </div>
+                    <div>
+                        <img src="~/img/image-not-avaliable01.jpg" alt="img not avaliable"
+                             style="
+                         max-width: 200px;
+                         max-height: 200px;
+                         height: auto;
+                         height: auto;"
+                             class="img-fluid small-image rounded shadow" />
+                    </div>
+                    <div>
+                        <img src="~/img/image-not-avaliable01.jpg" alt="img not avaliable"
+                             style="
+                         max-width: 200px;
+                         max-height: 200px;
+                         height: auto;
+                         height: auto;"
+                             class="img-fluid small-image rounded shadow" />
+                    </div>
+                    <div>
+                        <img src="~/img/image-not-avaliable01.jpg" alt="img not avaliable"
+                             style="
+                         max-width: 200px;
+                         max-height: 200px;
+                         height: auto;
+                         height: auto;"
+                             class="img-fluid small-image rounded shadow" />
+                    </div>
+                </div>
+            </div>
+
+            @* Save button *@
+            <div class="d-flex justify-content-end mt-3">
+                <input type="submit" value="Save" class="btn accent-color fs-5" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@* Back to List of Recipes *@
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

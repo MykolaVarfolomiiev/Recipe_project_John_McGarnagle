@@ -1,0 +1,36 @@
+﻿@model mvc2025TermProject.Models.ViewModels.StepOne
+@{
+    ViewData["Title"] = "Create Recipe - Step One";
+}
+
+<h1 class="text-center">@ViewData["Title"]</h1>
+
+<form asp-action="StepOne" method="post">
+    <div class="mb-3">
+        <label asp-for="RecipeName" class="form-label"></label>
+        <input asp-for="RecipeName" class="form-control" placeholder="Enter recipe name" />
+        <span asp-validation-for="RecipeName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CategoryID" class="form-label"></label>
+        <select asp-for="CategoryID" asp-items="ViewBag.CategoryID" class="form-select">
+            <option disabled selected>Select Category</option>
+        </select>
+        <span asp-validation-for="CategoryID" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="btn btn-primary">Next Step</button>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

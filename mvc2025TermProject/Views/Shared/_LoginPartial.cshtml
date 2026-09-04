@@ -1,0 +1,60 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using mvc2025TermProject.Data
+@using mvc2025TermProject.Models
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext _context
+
+@{
+    RecipeUser? recipeUser = null;
+    string displayName = "";
+
+    if (SignInManager.IsSignedIn(User))
+    {
+        var identityUserId = UserManager.GetUserId(User);
+        recipeUser = _context.RecipeUsers
+            .FirstOrDefault(u => u.IdentityUserId == identityUserId);
+
+        if (recipeUser != null &&
+            (!string.IsNullOrWhiteSpace(recipeUser.FirstName) ||
+             !string.IsNullOrWhiteSpace(recipeUser.LastName)))
+        {
+            displayName = $"{recipeUser.FirstName} {recipeUser.LastName}".Trim();
+        }
+        else
+        {
+            displayName = User.Identity?.Name;
+        }
+    }
+}
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+            <a class="nav-link text-dark btn accent-color"
+               asp-area="Identity" asp-page="/Account/Manage/Index">
+                Hello @displayName!
+            </a>
+    </li>
+
+    <li class="nav-item">
+        <form class="form-inline"
+              asp-area="Identity"
+              asp-page="/Account/Logout"
+              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button type="submit"
+                    class="nav-link btn btn-link text-dark accent-color mx-1">Logout</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark accent-color mx-1" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark accent-color mx-1" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+}
+</ul>

@@ -1,0 +1,76 @@
+﻿@model mvc2025TermProject.Models.ViewModels.StepTwo
+@using mvc2025TermProject.Models
+@{
+    ViewData["Title"] = "Create Recipe - Step Two";
+}
+
+<h2 class="text-center">@Model.RecipeName</h2>
+
+<h4 class="text-center" style="color: dimgray">Category: @Model.CategoryName</h4>
+
+<form asp-action="StepTwo" method="post">
+    <input type="hidden" asp-for="RecipeID" />
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label>Ingredient</label>
+            <select asp-for="SelectedIngredientID"
+                    class="form-select"
+                    asp-items="@(ViewData["IngredientList"] as IEnumerable<SelectListItem>)">
+                <option value="">-- Select Ingredient --</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label>Amount</label>
+            <input asp-for="NewAmount" type="number" step="0.01" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Measurement</label>
+            <select asp-for="NewMeasurementType"
+                    asp-items="Html.GetEnumSelectList<MeasurementType>()"
+                    class="form-select">
+                <option value="">-- Select Measurements --</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" name="action" value="add" class="btn btn-success w-100">
+                Add
+            </button>
+        </div>
+    </div>
+
+    <span class="text-danger">@Html.ValidationSummary()</span>
+</form>
+
+@if (Model.Ingredients?.Any() == true)
+{
+    <h3>Ingredients Added</h3>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Ingredient</th>
+                <th>Amount</th>
+                <th>Measurement</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Ingredients)
+            {
+                <tr>
+                    <td>@item.IngredientName</td>
+                    <td>@item.Amount</td>
+                    <td>@item.MeasurementType</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<form asp-action="StepThree" method="get" class="text-end">
+    <input type="hidden" asp-for="RecipeID" />
+    <button type="submit" class="btn btn-primary mt-3">Continue</button>
+</form>

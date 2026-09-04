@@ -1,0 +1,71 @@
+﻿@model mvc2025TermProject.Models.Image
+
+@{
+    ViewData["Title"] = "Add Images";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+
+        <!-- SINGLE CORRECT FORM -->
+        <form asp-action="Create"
+              method="post"
+              enctype="multipart/form-data">   <!-- REQUIRED -->
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Recipe dropdown -->
+            <div class="form-group">
+                <label asp-for="RecipeID" class="control-label"></label>
+                <select asp-for="RecipeID" class="form-control" asp-items="ViewBag.RecipeID">
+                    <option disabled selected>-- Select Recipe --</option>
+                </select>
+            </div>
+
+            <!-- File upload -->
+            <div class="mt-3">
+                <label>Select File:</label>
+                <input type="file" name="postedFile" class="form-control" />
+            </div>
+            @if (ViewBag.Message != null) {
+            <div class="alert alert-danger m-2">@ViewBag.Message</div>
+            }
+            <!-- Description -->
+            <div class="mt-3">
+                <label>Description:</label>
+                <input type="text" name="description" class="form-control" />
+            </div>
+
+            <!-- Alt Text -->
+            <div class="mt-3">
+                <label>Alt Text:</label>
+                <input type="text" name="altText" class="form-control" />
+            </div>
+
+            <div class="mt-3 form-check">
+                <input type="checkbox" class="form-check-input" id="IsPrimary" name="isPrimary" value="true" @(Model?.IsPrimary == true ? "checked" : "") />
+                <label class="form-check-label" for="IsPrimary">Set as Primary Image</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Upload</button>
+
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Recipes1" asp-action="MyRecipes">Back to My Recipes</a>
+</div

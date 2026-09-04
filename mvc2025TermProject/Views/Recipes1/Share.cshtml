@@ -1,0 +1,37 @@
+﻿@model mvc2025TermProject.Models.ViewModels.ShareRecipeViewModel
+
+@{
+    ViewData["Title"] = "Share Recipe";
+}
+
+<h2 class="my-3">Share Recipe</h2>
+
+<form asp-action="Share" method="post">
+    <input type="hidden" asp-for="RecipeID" />
+
+    <div class="mb-3 col-md-3">
+        <label asp-for="RecipientEmail" class="form-label"></label>
+        <input asp-for="RecipientEmail" class="form-control" />
+        <span asp-validation-for="RecipientEmail" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 col-md-3">
+        <label asp-for="Subject" class="form-label"></label>
+        <input asp-for="Subject" class="form-control" />
+        <span asp-validation-for="Subject" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Message" class="form-label"></label>
+        <textarea asp-for="Message" class="form-control" rows="8"></textarea>
+        <span asp-validation-for="Message" class="text-danger"></span>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">Share</button>
+    <a asp-action="Details" asp-route-id="@Model.RecipeID" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
