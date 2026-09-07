@@ -26,7 +26,9 @@
                     @foreach (var img in Model.Images.Where(i => i.IsApproved == true && i.IsPrimary == true))
                     {
                         <div class="primary-image-wrapper mb-3">
-                            <img src="@img.FilePath" alt="@img.AltText" class="img-fluid primary-img" />
+                            <img src="@Url.Action("Serve", "Images", new { id = img.ImageID })" 
+                                alt="@img.AltText" 
+                                class="img-fluid primary-img" />
                         </div>
                     }
                 </div>
@@ -37,7 +39,9 @@
                         @foreach (var img in Model.Images.Where(i => i.IsApproved == true && i.IsPrimary != true))
                         {
                             <div class="other-image-box">
-                                <img src="@img.FilePath" alt="@img.AltText" class="img-fluid other-img" />
+                                <img src="@Url.Action("Serve", "Images", new { id = img.ImageID })" 
+                                    alt="@img.AltText" 
+                                    class="img-fluid other-img" />
                             </div>
                         }
                     </div>

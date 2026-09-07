@@ -30,7 +30,7 @@
                 {
                     @if (img.IsPrimary == true)
                     {
-                        <img src="@img.FilePath"
+                            <img src="@Url.Action("Serve", "Images", new { id = img.ImageID })"
                              alt="@img.AltText"
                              class="recipeImg img-fluid rounded shadow"
                              style="width: 100px; height: 100px; object-fit: cover;" />

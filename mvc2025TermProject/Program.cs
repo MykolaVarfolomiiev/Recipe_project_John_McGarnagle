@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using mvc2025TermProject.Data;
 using EmailServices;
 using NETCore.MailKit.Core;
+using Azure.Identity;
+using Azure.Storage.Blobs;
 
 namespace mvc2025TermProject
 {
@@ -11,6 +13,16 @@ namespace mvc2025TermProject
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Add saving images to the blob storage
+            var storageAccountName = builder.Configuration["AzureBlobStorage:AccountName"];
+            var blobServiceUri = new Uri($"https://{storageAccountName}.blob.core.windows.net");
+            builder.Services.AddSingleton(
+                new BlobServiceClient(
+                    blobServiceUri,
+                    new DefaultAzureCredential()
+                )
+            );
 
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("TermProjectConnection") ??
@@ -28,7 +40,15 @@ namespace mvc2025TermProject
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options
                     .UseLazyLoadingProxies() // Lazy loading
-                    .UseSqlServer(connectionString));
+                    .UseSqlServer(
+                        connectionString,
+                        sqlOptions =>
+                        {
+                            sqlOptions.EnableRetryOnFailure(
+                                maxRetryCount: 5,
+                                maxRetryDelay: TimeSpan.FromSeconds(10),
+                                errorNumbersToAdd: null);
+                        }));
 
             if (builder.Environment.IsDevelopment())
             {

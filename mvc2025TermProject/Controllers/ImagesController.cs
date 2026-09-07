@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace mvc2025TermProject.Controllers
 {
@@ -20,12 +22,19 @@ namespace mvc2025TermProject.Controllers
         private readonly IWebHostEnvironment _environment;
         private const int MAX_IMAGES_PER_RECIPE = 7;
         private readonly IEmailSender _emailSender;
+        private readonly BlobServiceClient _blobServiceClient;
+        private readonly string _containerName;
 
-        public ImagesController(ApplicationDbContext context, IWebHostEnvironment environment, IEmailSender emailSender)
+        public ImagesController(ApplicationDbContext context, IWebHostEnvironment environment, IEmailSender emailSender, 
+            BlobServiceClient blobServiceClient, IConfiguration configuration)
         {
             _context = context;
             _environment = environment;
             _emailSender = emailSender;
+            _blobServiceClient = blobServiceClient;
+
+            _containerName = configuration["AzureBlobStorage:ContainerName"]
+            ?? throw new InvalidOperationException("AzureBlobStorage:ContainerName is not configured.");
         }
 
         // GET: Images
@@ -196,36 +205,34 @@ namespace mvc2025TermProject.Controllers
                             string extension = Path.GetExtension(postedFile.FileName);
                             string uniqueFileName = $"{Guid.NewGuid()}{extension}";
 
-                            string path = Path.Combine(_environment.WebRootPath, @"img\recipes\TempFiles");
-                            if (!Directory.Exists(path))
-                            {
-                                Directory.CreateDirectory(path);
-                            }
+                            var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
-                            string fullPath = Path.Combine(path, uniqueFileName);
+                            var blobName = recipeId.HasValue
+                                ? $"{recipeId}/{uniqueFileName}"
+                                : $"temp/{uniqueFileName}";
 
-                            using (FileStream stream = new FileStream(fullPath, FileMode.Create))
-                            {
-                                await postedFile.CopyToAsync(stream);
-                            }
+                            var blobClient = containerClient.GetBlobClient(blobName);
 
-                            string filePath;
+                            using var stream = postedFile.OpenReadStream();
+
+                            await blobClient.UploadAsync(
+                                stream,
+                                new BlobHttpHeaders
+                                {
+                                    ContentType = postedFile.ContentType
+                                });
+
+                            string filePath = blobClient.Uri.ToString();
 
                             if (isApproved)
                             {
-                                filePath = $"/img/recipes/{recipeId}/{uniqueFileName}";
-
                                 var msg = new EmailMessage(
                                     new[] { recipeUser.EmailAddress },
-                                            "Image Approved",
-                                            $"Your image {postedFile.FileName} to your {recipe.RecipeName} recipe is approved."
-                                    );
+                                    "Image Approved",
+                                    $"Your image {postedFile.FileName} to your {recipe.RecipeName} recipe is approved."
+                                );
 
                                 _emailSender.SendEmail(msg);
-                            }
-                            else
-                            {
-                                filePath = $"/img/recipes/TempFiles/{uniqueFileName}";
                             }
 
                             if (isPrimary && recipeId.HasValue)
@@ -373,11 +380,84 @@ namespace mvc2025TermProject.Controllers
             var image = await _context.Images.FindAsync(id);
             if (image != null)
             {
+                if (!string.IsNullOrWhiteSpace(image.FilePath))
+                {
+                    var blobUri = new Uri(image.FilePath);
+
+                    string containerPrefix = $"/{_containerName}/";
+
+                    int prefixIndex = blobUri.AbsolutePath.IndexOf(
+                        containerPrefix,
+                        StringComparison.OrdinalIgnoreCase);
+
+                    if (prefixIndex >= 0)
+                    {
+                        string blobName = Uri.UnescapeDataString(
+                            blobUri.AbsolutePath.Substring(
+                                prefixIndex + containerPrefix.Length));
+
+                        var containerClient =
+                            _blobServiceClient.GetBlobContainerClient(_containerName);
+
+                        var blobClient =
+                            containerClient.GetBlobClient(blobName);
+
+                        await blobClient.DeleteIfExistsAsync();
+                    }
+                }
+
                 _context.Images.Remove(image);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // For retrieving private image from blob and show it in the browser
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> Serve(int id)
+        {
+            var image = await _context.Images.FindAsync(id);
+
+            if (image == null || string.IsNullOrEmpty(image.FilePath))
+            {
+                return NotFound();
+            }
+
+            var containerClient =
+                _blobServiceClient.GetBlobContainerClient(_containerName);
+
+            // Extract blob name from the stored Blob URL
+            var blobUri = new Uri(image.FilePath);
+
+            string containerPrefix = $"/{_containerName}/";
+
+            int prefixIndex = blobUri.AbsolutePath.IndexOf(
+                containerPrefix,
+                StringComparison.OrdinalIgnoreCase);
+
+            if (prefixIndex < 0)
+            {
+                return NotFound();
+            }
+
+            string blobName = Uri.UnescapeDataString(
+                blobUri.AbsolutePath.Substring(
+                    prefixIndex + containerPrefix.Length));
+
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            if (!await blobClient.ExistsAsync())
+            {
+                return NotFound();
+            }
+
+            var download = await blobClient.DownloadStreamingAsync();
+
+            return File(
+                download.Value.Content,
+                download.Value.Details.ContentType ?? "application/octet-stream");
         }
 
         private bool ImageExists(int? id)
