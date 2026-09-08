@@ -182,5 +182,6 @@ This project gave me hands-on experience with:
 - CI/CD using GitHub Actions
 
 ## Author
-Mykola Varfolomiiev
+**Mykola Varfolomiiev**
+
 Full-stack Software Developer
