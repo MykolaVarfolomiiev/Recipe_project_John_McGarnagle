@@ -66,6 +66,102 @@
     </div>
 </div>
 
+@{
+    var currentImages =
+        ViewBag.CurrentImages as List<mvc2025TermProject.Models.Image>
+        ?? new List<mvc2025TermProject.Models.Image>();
+}
+
+@if (Model.RecipeID.HasValue == true)
+{
+    <hr />
+
+    <div class="mt-4">
+
+        <h4>
+            Images
+            <small class="text-muted">
+                (@currentImages.Count / 7)
+            </small>
+        </h4>
+
+        @if (currentImages.Any())
+        {
+            <div class="d-flex flex-wrap gap-3 mt-3">
+
+                @foreach (var img in currentImages)
+                {
+                    <div class="card"
+                         style="width: 160px;">
+
+                        <img src="@Url.Action("Serve", "Images", new { id = img.ImageID })"
+                             alt="@img.AltText"
+                             class="card-img-top"
+                             style="height: 120px; object-fit: cover;" />
+
+                        <div class="card-body p-2">
+
+                            @if (img.IsPrimary == true)
+                            {
+                                <div class="mb-2">
+                                    <span class="badge bg-success">
+                                        Primary
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <form asp-action="SetPrimary"
+                                      method="post"
+                                      class="mb-2">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@img.ImageID" />
+
+                                    <button type="submit"
+                                            class="btn btn-primary btn-sm w-100">
+                                        Set Primary
+                                    </button>
+
+                                </form>
+                            }
+
+                            <form asp-action="Delete"
+                                  method="post"
+                                  onsubmit="return confirm('Delete this image?');">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@img.ImageID" />
+
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm w-100">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mt-2">
+                No images have been added yet.
+            </p>
+        }
+    </div>
+}
+
 <div>
     <a asp-controller="Recipes1" asp-action="MyRecipes">Back to My Recipes</a>
 </div

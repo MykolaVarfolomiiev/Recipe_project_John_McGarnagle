@@ -93,7 +93,7 @@ namespace mvc2025TermProject.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int? recipeId)
         {
-            string? userName = User.Identity.Name;
+            string? userName = User.Identity?.Name;
 
             if (string.IsNullOrEmpty(userName))
                 return RedirectToAction("Login", "Account");
@@ -107,11 +107,25 @@ namespace mvc2025TermProject.Controllers
                 return BadRequest("User not found in RecipeUsers table.");
             }
 
-            var userRecipes = _context.Recipes
+            var userRecipes = await _context.Recipes
                 .Where(r => r.CreatedById == recipeUser.UserID)
-                .ToList();
+                .ToListAsync();
 
-            ViewData["RecipeID"] = new SelectList(userRecipes, "RecipeID", "RecipeName");
+            ViewData["RecipeID"] = new SelectList(userRecipes, "RecipeID", "RecipeName", recipeId);
+
+            // Load existing images for selected recipe
+            if (recipeId.HasValue)
+            {
+                ViewBag.CurrentImages = await _context.Images
+                    .Where(i => i.RecipeID == recipeId.Value)
+                    .OrderByDescending(i => i.IsPrimary)
+                    .ThenBy(i => i.CreatedAt)
+                    .ToListAsync();
+            }
+            else
+            {
+                ViewBag.CurrentImages = new List<Image>();
+            }
 
             var model = new Image
             {
@@ -164,7 +178,17 @@ namespace mvc2025TermProject.Controllers
                 ViewBag.Message = $"You cannot add more images.This recipe already has the maximum of {MAX_IMAGES_PER_RECIPE} images.";
                 ViewBag.RecipeID = new SelectList(userRecipes, "RecipeID", "RecipeName", recipeId);
                 ViewBag.RecipeName = recipe.RecipeName;
-                return View();
+                ViewBag.CurrentImages = currentImages;
+
+                var model1 = new Image
+                {
+                    RecipeID = recipeId,
+                    Description = description,
+                    AltText = altText,
+                    IsPrimary = isPrimary,
+                    IsApproved = isApproved
+                };
+                return View(model1);
             }
 
             if (postedFile != null)
@@ -269,7 +293,7 @@ namespace mvc2025TermProject.Controllers
                             // Redirect based on context
                             if (recipeId.HasValue)
                             {
-                                return RedirectToAction("MyRecipes", "Recipes1", new { id = recipeId });
+                                return RedirectToAction(nameof(Create), new { recipeId = recipeId });
                             }
                             return RedirectToAction(nameof(Index));
 
@@ -290,14 +314,58 @@ namespace mvc2025TermProject.Controllers
                 ViewBag.Message = "Please choose a file.";
             }
 
-            var userRecipesFinal = _context.Recipes
+            var userRecipesFinal = await _context.Recipes
                 .Where(r => r.CreatedById == recipeUser.UserID)
-                .ToList();
+                .ToListAsync();
 
             ViewBag.RecipeID = new SelectList(userRecipesFinal, "RecipeID", "RecipeName", recipeId);
             ViewBag.RecipeName = recipe.RecipeName;
 
-            return View();
+            ViewBag.CurrentImages = await _context.Images
+                .Where(i => i.RecipeID == recipeId)
+                .OrderByDescending(i => i.IsPrimary)
+                .ThenBy(i => i.CreatedAt)
+                .ToListAsync();
+
+            var model = new Image
+            {
+                RecipeID = recipeId,
+                Description = description,
+                AltText = altText,
+                IsPrimary = isPrimary,
+                IsApproved = isApproved
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetPrimary(int id)
+        {
+            var image = await _context.Images.FindAsync(id);
+
+            if (image == null || image.RecipeID == null)
+            {
+                return NotFound();
+            }
+
+            var recipeId = image.RecipeID.Value;
+
+            var recipeImages = await _context.Images
+                .Where(i => i.RecipeID == recipeId)
+                .ToListAsync();
+
+            foreach (var img in recipeImages)
+            {
+                img.IsPrimary = img.ImageID == id;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Primary image updated.";
+
+            return RedirectToAction(nameof(Create), new { recipeId });
         }
 
         // GET: Images/Edit/5
@@ -378,39 +446,46 @@ namespace mvc2025TermProject.Controllers
         public async Task<IActionResult> DeleteConfirmed(int? id)
         {
             var image = await _context.Images.FindAsync(id);
-            if (image != null)
+
+            if (image == null)
             {
-                if (!string.IsNullOrWhiteSpace(image.FilePath))
-                {
-                    var blobUri = new Uri(image.FilePath);
-
-                    string containerPrefix = $"/{_containerName}/";
-
-                    int prefixIndex = blobUri.AbsolutePath.IndexOf(
-                        containerPrefix,
-                        StringComparison.OrdinalIgnoreCase);
-
-                    if (prefixIndex >= 0)
-                    {
-                        string blobName = Uri.UnescapeDataString(
-                            blobUri.AbsolutePath.Substring(
-                                prefixIndex + containerPrefix.Length));
-
-                        var containerClient =
-                            _blobServiceClient.GetBlobContainerClient(_containerName);
-
-                        var blobClient =
-                            containerClient.GetBlobClient(blobName);
-
-                        await blobClient.DeleteIfExistsAsync();
-                    }
-                }
-
-                _context.Images.Remove(image);
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
 
-            return RedirectToAction(nameof(Index));
+            int? recipeId = image.RecipeID;
+
+            if (!string.IsNullOrWhiteSpace(image.FilePath))
+            {
+                var blobUri = new Uri(image.FilePath);
+
+                string containerPrefix = $"/{_containerName}/";
+
+                int prefixIndex = blobUri.AbsolutePath.IndexOf(
+                    containerPrefix,
+                    StringComparison.OrdinalIgnoreCase);
+
+                if (prefixIndex >= 0)
+                {
+                    string blobName = Uri.UnescapeDataString(
+                        blobUri.AbsolutePath.Substring(
+                            prefixIndex + containerPrefix.Length));
+
+                    var containerClient =
+                        _blobServiceClient.GetBlobContainerClient(_containerName);
+
+                    var blobClient =
+                        containerClient.GetBlobClient(blobName);
+
+                    await blobClient.DeleteIfExistsAsync();
+                }
+            }
+
+            _context.Images.Remove(image);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Image deleted.";
+
+            return RedirectToAction(nameof(Create), new { recipeId });
         }
 
         // For retrieving private image from blob and show it in the browser
